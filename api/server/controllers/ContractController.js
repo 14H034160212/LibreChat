@@ -1,6 +1,8 @@
 const ExcelJS = require('exceljs');
 const PDFDocument = require('pdfkit');
 const { Buffer } = require('buffer');
+const { createChartPage } = require('~/server/services/Contract/chartGenerator');
+const { generateComprehensiveAnalysisPrompt } = require('~/server/services/Contract/pdfProcessor');
 
 /**
  * Analyze contract and extract chart data
@@ -159,9 +161,10 @@ const exportToExcel = async (req, res) => {
     // Generate buffer
     const buffer = await workbook.xlsx.writeBuffer();
 
-    // Send file
+    // Send file with timestamp in filename
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').substring(0, 19);
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    res.setHeader('Content-Disposition', 'attachment; filename=contract_analysis.xlsx');
+    res.setHeader('Content-Disposition', `attachment; filename=contract_analysis_${timestamp}.xlsx`);
     res.send(buffer);
 
   } catch (error) {
@@ -174,7 +177,7 @@ const exportToExcel = async (req, res) => {
 };
 
 /**
- * Export chart data to PDF
+ * Export chart data to PDF with visual charts
  */
 const exportToPDF = async (req, res) => {
   try {
@@ -193,84 +196,41 @@ const exportToPDF = async (req, res) => {
     doc.on('data', buffers.push.bind(buffers));
 
     // Title page
-    doc.fontSize(20).text('合同数据分析报告', { align: 'center' });
+    doc.fontSize(20)
+       .font('Helvetica-Bold')
+       .fillColor('#2C3E50')
+       .text('合同数据分析报告', { align: 'center' });
     doc.moveDown();
-    doc.fontSize(12).text(`生成时间: ${new Date().toLocaleString('zh-CN')}`, { align: 'center' });
+    doc.fontSize(12)
+       .font('Helvetica')
+       .fillColor('#555555')
+       .text(`生成时间: ${new Date().toLocaleString('zh-CN')}`, { align: 'center' });
     doc.moveDown(2);
 
-    // Summary
-    doc.fontSize(16).text('图表摘要', { underline: true });
+    // Summary section
+    doc.fontSize(16)
+       .font('Helvetica-Bold')
+       .fillColor('#2C3E50')
+       .text('图表摘要', { underline: true });
     doc.moveDown();
-    doc.fontSize(10).text(`共生成 ${chartData.charts.length} 个图表\n`);
+    doc.fontSize(10)
+       .font('Helvetica')
+       .fillColor('#333333')
+       .text(`共生成 ${chartData.charts.length} 个图表\n`);
 
+    // List all charts with source info
     chartData.charts.forEach((chart, index) => {
       const pageInfo = chart.page_number && chart.page_number !== 'N/A'
         ? `第 ${chart.page_number} 页`
         : chart.category || '通用';
-      doc.text(`${index + 1}. ${pageInfo}: ${chart.chart_title}`);
+      doc.fontSize(10)
+         .fillColor('#555555')
+         .text(`${index + 1}. ${pageInfo}: ${chart.chart_title}`);
     });
 
-    // Individual charts
+    // Create visual chart pages
     chartData.charts.forEach((chart, index) => {
-      doc.addPage();
-
-      // Chart title
-      const pageInfo = chart.page_number && chart.page_number !== 'N/A'
-        ? `(来源: 第 ${chart.page_number} 页)`
-        : '';
-
-      doc.fontSize(16).text(`图表 ${index + 1}: ${chart.chart_title}`, { underline: true });
-      if (pageInfo) {
-        doc.fontSize(10).text(pageInfo);
-      }
-      doc.moveDown();
-
-      // Chart type
-      doc.fontSize(12).text(`类型: ${chart.chart_type === 'bar' ? '柱状图' : '折线图'}`);
-      doc.moveDown();
-
-      // Data table
-      doc.fontSize(12).text('数据:', { underline: true });
-      doc.moveDown(0.5);
-
-      if (chart.data && Array.isArray(chart.data)) {
-        // Table header
-        doc.fontSize(10);
-        const tableTop = doc.y;
-        const labelX = 70;
-        const valueX = 350;
-
-        doc.text('标签', labelX, tableTop, { width: 250, continued: false });
-        doc.text('数值', valueX, tableTop, { width: 150 });
-        doc.moveDown(0.5);
-
-        // Draw header line
-        doc.moveTo(50, doc.y)
-           .lineTo(500, doc.y)
-           .stroke();
-        doc.moveDown(0.5);
-
-        // Table rows
-        chart.data.forEach((item) => {
-          const rowY = doc.y;
-          doc.text(item.label, labelX, rowY, { width: 250, continued: false });
-          doc.text(item.value.toString(), valueX, rowY, { width: 150 });
-          doc.moveDown(0.5);
-        });
-
-        // Draw bottom line
-        doc.moveTo(50, doc.y)
-           .lineTo(500, doc.y)
-           .stroke();
-      }
-
-      // Explanation
-      if (chart.explanation) {
-        doc.moveDown(2);
-        doc.fontSize(12).text('说明:', { underline: true });
-        doc.moveDown(0.5);
-        doc.fontSize(10).text(chart.explanation, { align: 'left' });
-      }
+      createChartPage(doc, chart, index + 1);
     });
 
     doc.end();
@@ -282,9 +242,10 @@ const exportToPDF = async (req, res) => {
 
     const pdfBuffer = Buffer.concat(buffers);
 
-    // Send file
+    // Send file with timestamp in filename
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').substring(0, 19);
     res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', 'attachment; filename=contract_analysis.pdf');
+    res.setHeader('Content-Disposition', `attachment; filename=contract_analysis_${timestamp}.pdf`);
     res.send(pdfBuffer);
 
   } catch (error) {
