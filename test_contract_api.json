@@ -1,0 +1,33 @@
+{
+  "chartData": {
+    "has_data": true,
+    "charts": [
+      {
+        "chart_type": "bar",
+        "chart_title": "2024年季度营收",
+        "category": "财务",
+        "explanation": "展示各季度营收情况",
+        "page_number": 1,
+        "data": [
+          {"label": "Q1", "value": 250000},
+          {"label": "Q2", "value": 280000},
+          {"label": "Q3", "value": 310000},
+          {"label": "Q4", "value": 350000}
+        ]
+      },
+      {
+        "chart_type": "line",
+        "chart_title": "成本趋势",
+        "category": "财务",
+        "explanation": "各季度成本变化趋势",
+        "page_number": 2,
+        "data": [
+          {"label": "Q1", "value": 180000},
+          {"label": "Q2", "value": 190000},
+          {"label": "Q3", "value": 200000},
+          {"label": "Q4", "value": 210000}
+        ]
+      }
+    ]
+  }
+}

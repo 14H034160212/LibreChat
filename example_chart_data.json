@@ -1,0 +1,45 @@
+{
+  "has_data": true,
+  "charts": [
+    {
+      "chart_type": "bar",
+      "chart_title": "2024年财务指标",
+      "category": "财务",
+      "explanation": "展示2024年各季度的营收情况",
+      "page_number": 5,
+      "data": [
+        {"label": "Q1 营收", "value": 1250000},
+        {"label": "Q2 营收", "value": 1480000},
+        {"label": "Q3 营收", "value": 1620000},
+        {"label": "Q4 营收", "value": 1890000}
+      ]
+    },
+    {
+      "chart_type": "line",
+      "chart_title": "<公司名称> 增长趋势",
+      "category": "趋势",
+      "explanation": "显示过去四年的年度增长率",
+      "page_number": 7,
+      "data": [
+        {"label": "2021", "value": 12.5},
+        {"label": "2022", "value": 15.3},
+        {"label": "2023", "value": 18.7},
+        {"label": "2024", "value": 22.1}
+      ]
+    },
+    {
+      "chart_type": "bar",
+      "chart_title": "部门预算分配",
+      "category": "预算",
+      "explanation": "各部门的年度预算分配情况（单位：万元）",
+      "page_number": 12,
+      "data": [
+        {"label": "研发部", "value": 580},
+        {"label": "市场部", "value": 320},
+        {"label": "销售部", "value": 450},
+        {"label": "运营部", "value": 280},
+        {"label": "人力资源", "value": 150}
+      ]
+    }
+  ]
+}

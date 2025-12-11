@@ -10,6 +10,7 @@ import HoverButtons from '~/components/Chat/Messages/HoverButtons';
 import MessageIcon from '~/components/Chat/Messages/MessageIcon';
 import { Plugin } from '~/components/Messages/Content';
 import SubRow from '~/components/Chat/Messages/SubRow';
+import { ExportButtons } from '~/components/Contract/ExportButtons';
 import { fontSizeAtom } from '~/store/fontSize';
 import { MessageContext } from '~/Providers';
 import { useMessageActions } from '~/hooks';
@@ -195,6 +196,8 @@ const MessageRender = memo(
                 />
               </MessageContext.Provider>
             </div>
+
+            {!msg.isCreatedByUser && msg.text && <ExportButtons messageText={msg.text} />}
 
             {hasNoChildren && (isSubmittingFamily === true || effectiveIsSubmitting) ? (
               <PlaceholderRow isCard={isCard} />

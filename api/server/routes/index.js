@@ -26,6 +26,7 @@ const edit = require('./edit');
 const keys = require('./keys');
 const user = require('./user');
 const mcp = require('./mcp');
+const contract = require('./contract');
 
 module.exports = {
   mcp,
@@ -51,6 +52,7 @@ module.exports = {
   balance,
   messages,
   memories,
+  contract,
   endpoints,
   assistants,
   categories,
